@@ -42,34 +42,31 @@ fi
 
 tempfile=$(tempfile screengraph)
 
-# resize only works under X.
-#rows=$(resize | grep 'LINES=' | sed -e 's/.*=\([0-9]*\);.*/\1/')
+# get the current size of the terminal
 rows=$(stty -a | grep 'rows' | sed -e 's/.*rows \([0-9]*\);.*/\1/')
 rows=$(( $rows - 1 $minus ))
-
-#cols=$(resize | grep 'COLUMNS=' | sed -e 's/.*=\([0-9]*\);.*/\1/')
 cols=$(stty -a | grep 'columns' | sed -e 's/.*columns \([0-9]*\);.*/\1/')
 
 screen=/usr/bin/screen
 
-# Daten holen
+# get the data from the given screen window
 $screen -S $sty -p $graphdata -X hardcopy -h $tempfile
 
-# Die relevanten Daten herausholen
+# parse the relevant lines
 cat $tempfile | egrep '^[0-9]* [0-9.]*$' > $tempfile.tmp
 mv $tempfile.tmp $tempfile
 
-# Die Werte fuer die lineare Berechnung rausholen
+# now get the date for the linear interpolation
 firstline=$(head -1 $tempfile)
 lastline=$(tail -1 $tempfile)
 eta=$(echo $firstline $lastline $total | perl -ne 'split (/ +/);$seconds=($_[2]-$_[0])/($_[3]-$_[1])*($_[4] - $_[3]);if ($seconds < 0) { print "Finished" } else { ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst)=gmtime($seconds);print sprintf ("%d Tag(e) %02d:%02d:%02d", $yday, $hour, $min, $sec); }')
 lastvalue=$(echo $lastline | cut -f 2 -d ' ')
 
-# Die Datumse korrigieren und Veraenderungsdaten eintragen
+# correct the dates and set the change rate
 cat $tempfile | perl -ne 'split (/ /); ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst)=localtime($_[0]); chomp ($_[1]); if (defined ($last)) { $diff=($_[1]-$last)/($_[0]-$tlast)*60; } else { $diff=0; }; $tlast=$_[0]; $last=$_[1]; print "".(1900+$year)."-".($mon+1)."-".$mday."_".$hour.":".$min.":".$sec." ".$_[1]." ".$diff."\n";' > $tempfile.tmp
 mv $tempfile.tmp $tempfile
 
-# Graph erstellen lassen
+# create the graph and output it
 gnuplot <<EOF
 set grid
 set nokey
