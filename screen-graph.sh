@@ -66,7 +66,7 @@ lastvalue=$(echo $lastline | cut -f 2 -d ' ')
 cat $tempfile | perl -ne 'split (/ /); ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst)=localtime($_[0]); chomp ($_[1]); if (defined ($last)) { $diff=($_[1]-$last)/($_[0]-$tlast)*60; } else { $diff=0; }; $tlast=$_[0]; $last=$_[1]; print "".(1900+$year)."-".($mon+1)."-".$mday."_".$hour.":".$min.":".$sec." ".$_[1]." ".$diff."\n";' > $tempfile.tmp
 mv $tempfile.tmp $tempfile
 
-# create the graph and output it
+# create the graph and safe it to a file.
 gnuplot <<EOF
 set grid
 set nokey
@@ -81,8 +81,10 @@ plot "$tempfile" using 1:2 with lines, "$tempfile" using 1:3 axes x1y2 with impu
 exit
 EOF
 
+# Now output the graph and add some coloring.
 cat $tempfile.graph | sed -e 's/\([0-9]\+\)/[1;37m\1[0m/g' -e 's/\(\*\+\)/[31m\1[0m/g' -e 's/\(\#\+\)/[34m\1[0m/g' -e 's/\([.:]\+\)/[1;30m\1[0m/g'
 
+# Now output the ETA if wanted.
 if [ -n "$total" ]; then
   echo "Now: "$lastvalue" Wanted: "$total" ETA: "$eta
 fi
