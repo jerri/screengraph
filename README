@@ -1,0 +1,57 @@
+Screen-Graph
+------------
+
+This is a simple tool to use screen and gnuplot, to output a simple graph of
+one changing number output in a window.
+
+This script is a bash-file, which uses quite a lot of common tools. Namely:
+
+- bash
+- gnuplot
+- sed
+- perl
+- gnu screen
+
+I think it's not very elegant, as I hacked this together in about 2 hours to
+check a new tool I have programmed. But it works. Although YMMV!
+
+Usage
+-----
+
+You need at least one screen running. Check for the $STY, as you need this for
+screen-graph to find the data. So in the running screen do:
+
+$ echo $STY
+2294.pts-0.fun
+
+The create a window in screen and give it a title. With standard-shortcuts that
+whould be: ctrl-a c (to create a new window). ctrl-a :title aname[RETURN] to
+set the title.
+
+Now in that window output your data. The format has to be:
+
+UNIX-TIMESTAMP yourValue
+
+Here is a simple example to track your load:
+
+$ while true; do echo -n $(date +%s)' '; cat /proc/loadavg | cut -f 1 -d ' '; sleep 10; done
+
+The output should look like something like this this:
+
+1144870745 0.22
+1144870755 0.18
+1144870765 0.39
+1144870775 0.64
+1144870785 0.85
+
+OK. Now comes the magic. In another window, or even in another terminal (on the
+same computer as the same user!) do (with screen-graph.sh in your PATH!)
+
+$ screen-graph.sh 2294.pts-0.fun aname
+
+Use the values you got before! The result should be an graph filling up your
+terminal. If it doesn't work. Well. Use the source, luke. :)
+
+If you have ideas on improving this script, or have found any bugs, please tell me via email <tools@jerri.de>.
+
+This script is published under the GPL.
