@@ -19,8 +19,6 @@
 #          Parkstr. 10
 #          80339 Munich
 
-. $(dirname $0)/functions.sh
-
 function output_help () {
   echo "Usage: $0 STY screentitle [graphtitle] [wanted]"
   echo ""
@@ -34,6 +32,17 @@ function output_help () {
   echo "echo -n \$(date +%s); echo -n ' '; echo \$DATAPOINT"
   echo ""
   exit 0
+}
+
+# Create a tempfile to use. This should be random enough to provide tempfiles
+# for most shell-applications.
+# usage: tempfile namebase
+function tempfile {
+  [ -z "$1" ] && {
+    echo "tempfile: Please provide a temp-basename"
+    exit 1
+  }
+  echo $1'-'$$'-'$RANDOM'-'$(date +"%s")'.tmp'
 }
 
 trap "rm -f $tempfile $tempfile.tmp $tempfile.graph; exit 0" HUP KILL TERM
