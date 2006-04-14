@@ -68,7 +68,9 @@ else
   minus=""
 fi
 
-tempfile=$(tempfile screengraph)
+# the tempfile also has to be writeable by the screen, where the data is
+# output.
+tempfile=/tmp/$(tempfile screengraph)
 
 # get the current size of the terminal
 rows=$(stty -a | grep 'rows' | sed -e 's/.*rows \([0-9]*\);.*/\1/')
