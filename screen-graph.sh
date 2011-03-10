@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Simple script to output an graph on the console from data output to another
 # screen window.
 #
@@ -19,53 +19,58 @@
 #          Parkstr. 10
 #          80339 Munich
 
-function output_help () {
-  echo "Usage: $0 STY screentitle [graphtitle] [wanted]"
-  echo ""
-  echo "STY Name of the screen the data is to be read from."
-  echo "screentitle Title of the window of the screen where the data is shown."
-  echo "[graphtitle] Title of the graph."
-  echo "[wanted]: What value will this graph reach in the end."
-  echo "In this case screen_graph also outputs ETA (based on linear interpolation)."
-  echo ""
-  echo "Use a line like this to create the data-lines for the graph"
-  echo "echo -n \$(date +%s); echo -n ' '; echo \$DATAPOINT"
-  echo ""
-  exit 0
+function output_help
+{
+    echo "Usage: $0 STY screentitle [graphtitle] [wanted]"
+    echo ""
+    echo "STY Name of the screen the data is to be read from."
+    echo "screentitle Title of the window of the screen where the data is shown."
+    echo "[graphtitle] Title of the graph."
+    echo "[wanted]: What value will this graph reach in the end."
+    echo "In this case screen_graph also outputs ETA (based on linear interpolation)."
+    echo ""
+    echo "Use a line like this to create the data-lines for the graph"
+    echo "echo -n \$(date +%s); echo -n ' '; echo \$DATAPOINT"
+    echo ""
+    exit 0
 }
 
 # Create a tempfile to use. This should be random enough to provide tempfiles
 # for most shell-applications.
 # usage: tempfile namebase
-function tempfile {
-  [ -z "$1" ] && {
-    echo "tempfile: Please provide a temp-basename"
-    exit 1
-  }
-  echo $1'-'$$'-'$RANDOM'-'$(date +"%s")'.tmp'
+function tempfile
+{
+    [ -z "$1" ] && {
+        echo "tempfile: Please provide a temp-basename"
+        exit 1
+    }
+    echo $1'-'$$'-'$RANDOM'-'$(date +"%s")'.tmp'
 }
 
 trap "rm -f $tempfile $tempfile.tmp $tempfile.graph; exit 0" HUP KILL TERM
 
 if [ -z "$1" -o -z "$2" ]; then
-  output_help
+    output_help
+
 else
-  sty=$1
-  graphdata=$2
+    sty=$1
+    graphdata=$2
 fi
 
 if [ -n "$3" ]; then
-  title=$3
+    title=$3
+
 else
-  title=""
+    title=""
 fi
 
 if [ -n "$4" ]; then
-  total=$4
-  minus="-1"
+    total=$4
+    minus="-1"
+
 else
-  total=""
-  minus=""
+    total=""
+    minus=""
 fi
 
 # the tempfile also has to be writeable by the screen, where the data is
@@ -116,7 +121,7 @@ cat $tempfile.graph | sed -e 's/\([0-9]\+\)/[1;37m\1[0m/g' -e 's/\(\*\+\)/[31
 
 # Now output the ETA if wanted.
 if [ -n "$total" ]; then
-  echo "Now: "$lastvalue" Wanted: "$total" ETA: "$eta
+    echo "Now: "$lastvalue" Wanted: "$total" ETA: "$eta
 fi
 
 rm -f $tempfile $tempfile.tmp $tempfile.graph
